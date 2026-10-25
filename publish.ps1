@@ -126,7 +126,7 @@ Write-Host "==> Built $setupExe ($sizeMb MB)" -ForegroundColor Green
 # 7. Optional git commit & push
 if ($Push) {
     Write-Host "==> Committing and pushing v$newVer to GitHub..." -ForegroundColor Cyan
-    git add .gitignore .gitattributes VERSION manifest.json RobloxAfkMonitor.ahk RobloxAfkMonitor.exe "Start Roblox AFK Monitor.bat" lib/ installer/ tests/ README.md publish.ps1
+    git add .gitignore .gitattributes VERSION manifest.json RobloxAfkMonitor.ahk RobloxAfkMonitor.exe "Start Roblox AFK Monitor.bat" lib/ installer/ tests/ assets/ README.md publish.ps1
     git commit -m "$Message (v$newVer)"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
     git push -u origin main
