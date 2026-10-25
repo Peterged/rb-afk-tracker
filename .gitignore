@@ -1,0 +1,9 @@
+settings.ini
+state.ini
+state.ini.tmp
+logs/
+tests/.tmp/
+tests/.tmp_install/
+dist/
+.update_stage/
+RobloxAFKWatchDog.zip

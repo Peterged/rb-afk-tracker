@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "files": [
+    { "path": "RobloxAfkMonitor.ahk", "sha256": "866583c2e8d313ef9c5529179894b20e8b5567fcdc799fd966acab494ac9ed45", "size": 14698 },
+    { "path": "lib/Alerts.ahk", "sha256": "5ab01a8f16768f37c7a066922de3d28e07f0c91d353b0e3edcdc3eefb9f5fccb", "size": 5363 },
+    { "path": "lib/Config.ahk", "sha256": "c6ea477d63847b79fcdeb472ecfef561dbf8c40b05fb7a7ce74b6e2e80ccb28b", "size": 15351 },
+    { "path": "lib/DisconnectDetector.ahk", "sha256": "8556d354712b1d1a5b4aeb9718371a84f0c5dc39c9a16a90dc0a5a015c4a6c76", "size": 3081 },
+    { "path": "lib/FrameBuffer.ahk", "sha256": "97153e764dca656661e94033c709da32cab6ce40ba012bff75d694900c7a037d", "size": 21480 },
+    { "path": "lib/Hud.ahk", "sha256": "6fb8b170f93d907f78b487e9030d99bbb1de14a12b3efab93a7c25257ca3e404", "size": 4958 },
+    { "path": "lib/InputMonitor.ahk", "sha256": "4f1b4f9755ee778a317bfe3f1677248addfe08a5764a88dd76f73c79d0070e43", "size": 2461 },
+    { "path": "lib/Logger.ahk", "sha256": "1b06c69db6cd4932dca84a2cc5160c440ebd2b615984c425fee04ecd83ec2409", "size": 1086 },
+    { "path": "lib/Notifier.ahk", "sha256": "1cf7f6ff7c4831f632e35208e0de63280552068d792e8a436dbd0dacc15a87fb", "size": 3332 },
+    { "path": "lib/rapidocr_worker.py", "sha256": "bf8418d353e46a945ecbf4442bbae699fd9aebbd2db5c31d6e8aa0f396beb7ff", "size": 1300 },
+    { "path": "lib/RapidOcrBridge.ahk", "sha256": "9c5492164861aa43ea46b5c1406bd1731527fc924671011ded170e111cac6755", "size": 3605 },
+    { "path": "lib/Status.ahk", "sha256": "2c6f23bdabfd6f804a044854a4c64bcb82538ccb2e942a9be427d1476300c517", "size": 4661 },
+    { "path": "lib/TrayMenu.ahk", "sha256": "1a795778bb4bd3bd648006ccc603a4ecbf8285fb18a1e470b9fc2aff25252888", "size": 3370 },
+    { "path": "lib/Updater.ahk", "sha256": "beb93eb4d9aa15089c1843c61ddf6113d443d30c00e61337819e39d2b1a97d53", "size": 10676 },
+    { "path": "lib/VisionParsers.ahk", "sha256": "498d68c29c29b3209ed61fe4614de22392a2fbf0d973deec88694f2965a84cf3", "size": 6516 },
+    { "path": "lib/WindowApi.ahk", "sha256": "f58b5d2f485fad1a1f26df212fc3f570364c71727530466ae3af0c447829bf3c", "size": 3694 },
+    { "path": "lib/WindowTracker.ahk", "sha256": "a110726744b10e5720900fc9f0a691ffec4379c53d53d2006a996d258813f459", "size": 12267 },
+    { "path": "lib/WinRtOcr.ahk", "sha256": "817e0d778a6a86dd658281c83c7adf96ada5ae9e2a1b5a89aaa2a00cc404c132", "size": 7822 }
+  ]
+}
