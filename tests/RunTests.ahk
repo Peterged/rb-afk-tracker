@@ -12,8 +12,10 @@
 #Include "%A_ScriptDir%\..\lib\WindowTracker.ahk"
 #Include "%A_ScriptDir%\..\lib\InputMonitor.ahk"
 #Include "%A_ScriptDir%\..\lib\DisconnectDetector.ahk"
+#Include "%A_ScriptDir%\..\lib\EggDetector.ahk"
 #Include "%A_ScriptDir%\..\lib\Alerts.ahk"
 #Include "%A_ScriptDir%\..\lib\Notifier.ahk"
+#Include "%A_ScriptDir%\..\lib\DiscordNotifier.ahk"
 #Include "%A_ScriptDir%\..\lib\Updater.ahk"
 
 #Include "%A_ScriptDir%\Assert.ahk"
@@ -26,6 +28,7 @@
 #Include "%A_ScriptDir%\FrameBufferTest.ahk"
 #Include "%A_ScriptDir%\AlertsTest.ahk"
 #Include "%A_ScriptDir%\NotifierTest.ahk"
+#Include "%A_ScriptDir%\EggDetectorTest.ahk"
 #Include "%A_ScriptDir%\UpdaterTest.ahk"
 #Include "%A_ScriptDir%\ComplianceTest.ahk"
 
@@ -37,6 +40,7 @@ RunVisionParsersTests()
 RunFrameBufferTests()
 RunAlertsTests()
 RunNotifierTests()
+RunEggDetectorTests()
 RunUpdaterTests()
 RunComplianceTests()
 

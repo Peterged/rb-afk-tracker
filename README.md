@@ -44,6 +44,16 @@ Main Acc OK      03:37  kick 16:23 MIN
 - `HUNG`: Windows reports the window as "Not Responding" for longer than `HungGraceSeconds`.
 - `MISSING`: A tracked client closed or crashed. Opening a new Roblox window reclaims that slot and keeps its label.
 
+## Egg Spawn Notifier (Discord Webhook)
+
+The monitor can watch any open Roblox window with the **Index** menu scrolled to the bottom and alert a Discord channel when one of the 4 rare cyan-to-purple gradient eggs (`363B`, `1T`, `2.5T`, `3T`, plus optional `210B`) spawns (its center is no longer a black silhouette):
+
+1. Open **Tray -> Open settings.ini**.
+2. Under `[Discord]`, set `WebhookUrl=https://discord.com/api/webhooks/...` (and optionally customize `BotName`, `BotAvatarUrl`, `EmbedColor`, `FooterText`, and `JoinGameUrl`).
+3. Under `[Eggs]`, fill in the `Name`, `Rarity`, `Luck`, `RoleId` (Discord role ID digits to ping `<@&RoleId>`), `Emoji`, and `ThumbnailUrl` for each egg (`Egg363B_*`, `Egg1T_*`, `Egg2_5T_*`, `Egg3T_*`, `Egg210B_*`).
+4. Click **Tray -> Reload settings**, then click **Tray -> Send test Discord egg alert** to preview the embed in your server.
+5. You can verify live card detection at any time via **Tray -> Inspect current window CV...**
+
 ## Phone Notifications (ntfy.sh)
 
 To get alerts on your phone through [ntfy.sh](https://ntfy.sh) when you're away from your desk:

@@ -16,6 +16,7 @@ class TrayMenu {
         "calibrate", "Calibrate disconnect color...",
         "mute", "Mute sounds",
         "test", "Send test notification",
+        "testDiscord", "Send test Discord egg alert",
         "update", "Check for updates...",
         "settings", "Open settings.ini",
         "reload", "Reload settings",
@@ -41,6 +42,7 @@ class TrayMenu {
         m.Add(n["calibrate"], (*) => app.Calibrate())
         m.Add(n["mute"], (*) => app.ToggleMute())
         m.Add(n["test"], (*) => app.TestNotify())
+        m.Add(n["testDiscord"], (*) => app.TestDiscordNotify())
         m.Add()
         m.Add(n["update"], (*) => app.CheckForUpdates(true))
         m.Add(n["settings"], (*) => app.OpenSettings())

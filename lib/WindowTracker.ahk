@@ -40,6 +40,9 @@ class TrackedSlot {
         this.eventTimer := ""
         this.lastOcrTick := 0
         this.lastRestoreTick := 0
+        this.indexOpen := false
+        this.eggStreaks := Map()
+        this.eggSpawned := Map()
     }
 }
 
@@ -232,6 +235,35 @@ class WindowTracker {
             slot.eventTimer := timers.nextEvent
         else if (timers && timers.activeBuff != "")
             slot.eventTimer := timers.activeBuff
+    }
+
+    ; Updates per-slot egg scan streaks and returns an Array of egg keys that
+    ; newly transitioned to confirmed-spawned on this scan.
+    UpdateEggScan(hwnd, scanResult) {
+        slot := this.byHwnd.Get(hwnd, "")
+        if (!slot || !scanResult)
+            return []
+        slot.indexOpen := scanResult.indexOpen
+        if !scanResult.indexOpen
+            return []
+
+        newlySpawned := []
+        confirmNeed := Max(1, this.cfg.EggsConfirmScans)
+        for item in scanResult.eggs {
+            key := item.key
+            if item.spawned {
+                streak := slot.eggStreaks.Get(key, 0) + 1
+                slot.eggStreaks[key] := streak
+                if (streak >= confirmNeed && !slot.eggSpawned.Get(key, false)) {
+                    slot.eggSpawned[key] := true
+                    newlySpawned.Push(key)
+                }
+            } else {
+                slot.eggStreaks[key] := 0
+                slot.eggSpawned[key] := false
+            }
+        }
+        return newlySpawned
     }
 
     ; Round-robin over live windows so capture cost is spread across ticks.

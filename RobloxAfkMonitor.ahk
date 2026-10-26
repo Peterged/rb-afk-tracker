@@ -14,9 +14,11 @@ Persistent
 #Include "%A_ScriptDir%\lib\WindowTracker.ahk"
 #Include "%A_ScriptDir%\lib\InputMonitor.ahk"
 #Include "%A_ScriptDir%\lib\DisconnectDetector.ahk"
+#Include "%A_ScriptDir%\lib\EggDetector.ahk"
 #Include "%A_ScriptDir%\lib\Hud.ahk"
 #Include "%A_ScriptDir%\lib\Alerts.ahk"
 #Include "%A_ScriptDir%\lib\Notifier.ahk"
+#Include "%A_ScriptDir%\lib\DiscordNotifier.ahk"
 #Include "%A_ScriptDir%\lib\Updater.ahk"
 #Include "%A_ScriptDir%\lib\TrayMenu.ahk"
 
@@ -40,12 +42,14 @@ class App {
         this.tracker := WindowTracker(this.cfg, this.winApi, this.clock, this.statePath)
         restored := this.tracker.LoadState()
         this.detector := DisconnectDetector(this.cfg, this.winApi)
+        this.eggDetector := EggDetector(this.cfg)
         this.ocr := WinRtOcr(this.cfg.RapidOcrEnabled)
         this.updater := Updater(this.cfg, this.logger, A_ScriptDir)
         this.logger.Info("Started Roblox AFK Monitor v" this.updater.LocalVersion() " (restored " restored " slot(s), OCR=" this.ocr.BackendName ")")
 
         this.sound := SoundPlayer(this.cfg)
         this.notifier := Notifier(this.cfg, this.logger, this.clock)
+        this.discord := DiscordNotifier(this.cfg, this.logger, this.clock)
         this.alerts := Alerts(this.cfg, this.logger, this.sound, this.notifier)
         this.hud := Hud(this.cfg)
 
@@ -63,7 +67,7 @@ class App {
 
         this.Tick()
         SetTimer(ObjBindMethod(this, "Tick"), 1000)
-        if (this.cfg.DcEnabled || this.cfg.FreezeSeconds > 0 || this.cfg.OcrEnabled)
+        if (this.cfg.DcEnabled || this.cfg.FreezeSeconds > 0 || this.cfg.OcrEnabled || this.cfg.EggsEnabled)
             SetTimer(ObjBindMethod(this, "ScanOneWindow"), this.cfg.DcScanIntervalMs)
         if (this.cfg.UpdateEnabled && this.cfg.UpdateRepo != "") {
             SetTimer(() => this.CheckForUpdates(false), -3000)
@@ -95,6 +99,7 @@ class App {
         this.input.EnsureRunning()
         this.tracker.Refresh()
         this.notifier.Poll()
+        this.discord.Poll()
 
         slots := this.tracker.VisibleSlots()
         statuses := Map()
@@ -138,13 +143,27 @@ class App {
             }
         }
 
-        ; 2. 3D viewport render-freeze detector (skip while DC modal covers the viewport)
-        if (!slot.dc && this.cfg.FreezeSeconds > 0) {
+        ; 2. Index Egg Spawn detector (checked before viewport freeze so keeping Index open doesn't trigger FROZEN)
+        if (!slot.dc && this.cfg.EggsEnabled) {
+            eggRes := this.eggDetector.ScanFrame(frame)
+            spawnedKeys := this.tracker.UpdateEggScan(slot.hwnd, eggRes)
+            for key in spawnedKeys {
+                meta := this.cfg.EggMeta(key)
+                this.logger.Info("Egg spawned: " meta.name " on " slot.label)
+                this.sound.Play("Refreshed")
+                this.discord.NotifyEggSpawn(key, slot.label)
+                this.notifier.Notify("EGG:" key, "Egg Spawned: " meta.name,
+                    meta.name " (" meta.luck ") spawned on " slot.label "!", 4, true)
+            }
+        }
+
+        ; 3. 3D viewport render-freeze detector (skip while DC modal or Index dialog covers the viewport)
+        if (!slot.dc && !slot.indexOpen && this.cfg.FreezeSeconds > 0) {
             hash := frame.ComputeViewportHash(this.cfg.VisionViewportBox)
             this.tracker.UpdateFrameHash(slot.hwnd, hash, now)
         }
 
-        ; 3. In-game HUD OCR (Cash, Friend Boost %, Event/Buff timers)
+        ; 4. In-game HUD OCR (Cash, Friend Boost %, Event/Buff timers)
         if (!slot.dc && this.cfg.OcrEnabled && this.ocr.Available) {
             ocrIntervalMs := this.cfg.OcrStatsIntervalSec * 1000
             if (slot.lastOcrTick = 0 || now - slot.lastOcrTick >= ocrIntervalMs) {
@@ -312,16 +331,25 @@ class App {
         stats := VisionParsers.ParseStats(statsRaw)
         timers := VisionParsers.ParseTimers(timersRaw)
         dcInfo := VisionParsers.ParseDisconnectReason(modalRaw)
+        eggRes := this.eggDetector.ScanFrame(frame)
+        eggSummary := "Index Open: " (eggRes.indexOpen ? "YES (" eggRes.eggs.Length " target egg(s) visible)" : "NO")
+        for item in eggRes.eggs {
+            eggSummary .= Format("`n  - {}: row={} col={} black={:.0f}% avg={} badge={} -> {}",
+                item.key, item.row, item.col, item.blackRatio * 100, item.avgRgb, item.badgeHits,
+                item.spawned ? "SPAWNED!" : "Silhouette")
+        }
 
         report := Format(
             "Window: 0x{:X} ({}x{})  OCR Backend: {}`n"
             . "Disconnect pixel check: {}`n"
             . "Viewport 64-bit hash: 0x{:016X}`n"
             . "Auto-located Cash Band: {}`n`n"
+            . "--- Egg Spawn Detector ---`n{}`n`n"
             . "--- Bottom-Left Stats OCR ---`nRaw: {}`nParsed: Cash='{}'  Boost={}%  Income='{}'`n`n"
             . "--- Bottom-Right Timers OCR ---`nRaw: {}`nParsed: NextEvent='{}'  ActiveBuff='{}'`n`n"
             . "--- Center Modal OCR ---`nRaw: {}`nParsed: Code='{}'  Detail='{}'",
             hwnd, frame.width, frame.height, this.ocr.BackendName, dcRes, vpHash, bandStr,
+            eggSummary,
             Trim(statsRaw), stats.cash, stats.boost, stats.income,
             Trim(timersRaw), timers.nextEvent, timers.activeBuff,
             Trim(modalRaw), dcInfo.code, dcInfo.detail
@@ -337,6 +365,15 @@ class App {
             return
         }
         this.notifier.Notify("test", "Roblox AFK Monitor", "Test notification from Roblox AFK Monitor", 3, true)
+    }
+
+    TestDiscordNotify() {
+        if !this.discord.Enabled {
+            MsgBox("Set [Discord] WebhookUrl in settings.ini first, then choose Reload settings.",
+                "Discord webhook not configured", "Iconi")
+            return
+        }
+        this.discord.NotifyEggSpawn("363B", "Test", true)
     }
 
     OpenSettings() {
